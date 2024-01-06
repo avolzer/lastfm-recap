@@ -71,8 +71,7 @@ function App() {
                 loading={loading}
                 variant="contained"
                 onClick={() => {
-                  getUserData(user);
-                  // setShowRecap(true);
+                  if (user) getUserData(user);
                 }}
               >
                 Go

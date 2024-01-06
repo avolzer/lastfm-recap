@@ -24,7 +24,9 @@ export const useFetchData = (user) => {
     })
       .then((response) => response.json())
       .then((data) => setSpotifyToken(data.access_token))
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        setError(error.message);
+      });
   };
 
   const getUserData = () => {
@@ -38,9 +40,7 @@ export const useFetchData = (user) => {
           api_key: API_KEY,
           format: "json",
         })
-    )
-      .then((response) => response.json())
-      .catch((error) => console.error(error));
+    ).then((response) => response.json());
 
     const trackRequest = fetch(
       url +
@@ -52,9 +52,7 @@ export const useFetchData = (user) => {
           api_key: API_KEY,
           format: "json",
         })
-    )
-      .then((response) => response.json())
-      .catch((error) => console.error(error));
+    ).then((response) => response.json());
 
     const scrobbleRequest = fetch(
       url +
@@ -64,9 +62,7 @@ export const useFetchData = (user) => {
           api_key: API_KEY,
           format: "json",
         })
-    )
-      .then((response) => response.json())
-      .catch((error) => console.error(error));
+    ).then((response) => response.json());
 
     setLoading(true);
     Promise.all([artistRequest, trackRequest, scrobbleRequest])
@@ -75,7 +71,7 @@ export const useFetchData = (user) => {
           !artistData.topartists.artist.length &&
           !trackData.toptracks.track.length
         ) {
-          setError("No data found for that user");
+          setError("No activity within the past year");
           setLoading(false);
           return;
         }
@@ -87,9 +83,7 @@ export const useFetchData = (user) => {
             method: "GET",
             headers: { Authorization: `Bearer ${spotifyToken}` },
           }
-        )
-          .then((response) => response.json())
-          .catch((error) => setError(error));
+        ).then((response) => response.json());
 
         const albumImageRequest = fetch(
           `https://api.spotify.com/v1/search?q=${trackData.toptracks.track[0].name}-${trackData.toptracks.track[0].artist.name}&type=track`,
@@ -97,9 +91,7 @@ export const useFetchData = (user) => {
             method: "GET",
             headers: { Authorization: `Bearer ${spotifyToken}` },
           }
-        )
-          .then((response) => response.json())
-          .catch((error) => setError(error));
+        ).then((response) => response.json());
 
         Promise.all([artistImageRequest, albumImageRequest]).then(
           ([artistImage, albumImage]) => {
@@ -116,7 +108,8 @@ export const useFetchData = (user) => {
         );
       })
       .catch((error) => {
-        setError(error);
+        console.error(error);
+        setError("Unable to find data for that user");
         setLoading(false);
       });
   };
