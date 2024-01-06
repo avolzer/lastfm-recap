@@ -1,9 +1,9 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 import CssBaseline from "@mui/material/CssBaseline";
 
@@ -13,7 +13,12 @@ import { useFetchData } from "./getUserData";
 function App() {
   const [user, setUser] = useState("");
 
-  const { loading, error, userData, getUserData } = useFetchData(user);
+  const { loading, error, userData, getUserData, authorizeSpotify } =
+    useFetchData(user);
+
+  useEffect(() => {
+    authorizeSpotify();
+  }, []);
 
   return (
     <Box className="App" bgcolor="white">
@@ -51,9 +56,13 @@ function App() {
                   setUser(event.target.value);
                 }}
               />
-              <Button variant="contained" onClick={() => getUserData(user)}>
+              <LoadingButton
+                loading={loading}
+                variant="contained"
+                onClick={() => getUserData(user)}
+              >
                 Go
-              </Button>
+              </LoadingButton>
             </Box>
           </>
         )}

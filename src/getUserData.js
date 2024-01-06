@@ -6,6 +6,26 @@ export const useFetchData = (user) => {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState();
   const [error, setError] = useState();
+  const [spotifyToken, setSpotifyToken] = useState();
+
+  const API_KEY = process.env.REACT_APP_API_KEY;
+
+  const authorizeSpotify = () => {
+    fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: process.env.REACT_APP_CLIENT_ID,
+        client_secret: process.env.REACT_APP_CLIENT_SECRET,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => setSpotifyToken(data.access_token))
+      .catch((error) => console.error(error));
+  };
 
   const getUserData = () => {
     const artistRequest = fetch(
@@ -15,7 +35,7 @@ export const useFetchData = (user) => {
           user: user,
           period: "12month",
           limit: 5,
-          api_key: "b2fb373ad4c40447fa74ddea3405be7a",
+          api_key: API_KEY,
           format: "json",
         })
     )
@@ -29,7 +49,7 @@ export const useFetchData = (user) => {
           user: user,
           period: "12month",
           limit: 5,
-          api_key: "b2fb373ad4c40447fa74ddea3405be7a",
+          api_key: API_KEY,
           format: "json",
         })
     )
@@ -41,7 +61,7 @@ export const useFetchData = (user) => {
         new URLSearchParams({
           method: "user.getrecenttracks",
           user: user,
-          api_key: "b2fb373ad4c40447fa74ddea3405be7a",
+          api_key: API_KEY,
           format: "json",
         })
     )
@@ -52,13 +72,11 @@ export const useFetchData = (user) => {
     Promise.all([artistRequest, trackRequest, scrobbleRequest])
       .then(([artistData, trackData, scrobbleData]) => {
         const topArtist = artistData.topartists.artist[0].name;
-        const token =
-          "BQAVbjOwxfKGf380R7bIXc251cd4P3AytMrhoRNFrFU9wW2DJwKT_-tr6jU8DrZT5IanjcA-zhD0I4KIVmKtqLReqBy-1YPER2qzHC2PJjLC9fgnQ6E";
         const artistImageRequest = fetch(
           `https://api.spotify.com/v1/search?q=${topArtist}&type=artist`,
           {
             method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${spotifyToken}` },
           }
         )
           .then((response) => response.json())
@@ -68,7 +86,7 @@ export const useFetchData = (user) => {
           `https://api.spotify.com/v1/search?q=${trackData.toptracks.track[0].name}-${trackData.toptracks.track[0].artist.name}&type=track`,
           {
             method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${spotifyToken}` },
           }
         )
           .then((response) => response.json())
@@ -93,5 +111,5 @@ export const useFetchData = (user) => {
       });
   };
 
-  return { getUserData, loading, userData, error };
+  return { authorizeSpotify, getUserData, loading, userData, error };
 };
