@@ -11,7 +11,6 @@ const Recap = ({ data }) => {
   const otherArtists = data.artistData.slice(1, 5);
   const topTrack = data.trackData[0];
   const otherTracks = data.trackData.slice(1, 5);
-  console.log(data.albumImage.url);
 
   return (
     <Box>

@@ -23,7 +23,18 @@ function App() {
   return (
     <Box className="App" bgcolor="white">
       <CssBaseline />
-      <Typography variant="h1" color="#459bdd">
+      <Typography
+        variant="h1"
+        sx={{
+          "&:hover": {
+            cursor: "pointer",
+          },
+        }}
+        color="#459bdd"
+        onClick={() => {
+          window.location.reload(false);
+        }}
+      >
         Last.fm Recap
       </Typography>
       <Box
@@ -59,11 +70,15 @@ function App() {
               <LoadingButton
                 loading={loading}
                 variant="contained"
-                onClick={() => getUserData(user)}
+                onClick={() => {
+                  getUserData(user);
+                  // setShowRecap(true);
+                }}
               >
                 Go
               </LoadingButton>
             </Box>
+            {error && <p>{error}</p>}
           </>
         )}
       </Box>

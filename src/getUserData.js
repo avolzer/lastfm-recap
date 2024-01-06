@@ -71,6 +71,15 @@ export const useFetchData = (user) => {
     setLoading(true);
     Promise.all([artistRequest, trackRequest, scrobbleRequest])
       .then(([artistData, trackData, scrobbleData]) => {
+        if (
+          !artistData.topartists.artist.length &&
+          !trackData.toptracks.track.length
+        ) {
+          setError("No data found for that user");
+          setLoading(false);
+          return;
+        }
+
         const topArtist = artistData.topartists.artist[0].name;
         const artistImageRequest = fetch(
           `https://api.spotify.com/v1/search?q=${topArtist}&type=artist`,
@@ -80,7 +89,7 @@ export const useFetchData = (user) => {
           }
         )
           .then((response) => response.json())
-          .catch((error) => console.log(error));
+          .catch((error) => setError(error));
 
         const albumImageRequest = fetch(
           `https://api.spotify.com/v1/search?q=${trackData.toptracks.track[0].name}-${trackData.toptracks.track[0].artist.name}&type=track`,
@@ -90,11 +99,10 @@ export const useFetchData = (user) => {
           }
         )
           .then((response) => response.json())
-          .catch((error) => console.log(error));
+          .catch((error) => setError(error));
 
         Promise.all([artistImageRequest, albumImageRequest]).then(
           ([artistImage, albumImage]) => {
-            console.log(albumImage);
             setUserData({
               artistData: artistData.topartists.artist,
               trackData: trackData.toptracks.track,
@@ -102,6 +110,8 @@ export const useFetchData = (user) => {
               artistImage: artistImage.artists.items[0].images[2],
               albumImage: albumImage.tracks.items[0].album.images[2],
             });
+
+            setLoading(false);
           }
         );
       })
